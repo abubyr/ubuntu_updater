@@ -47,8 +47,9 @@ Dpkg::Options {
 EOT
 
 apt-get install update-manager-core | tee -a ${LOG_FILE}
-do-release-upgrade -f DistUpgradeViewNonInteractive | tee -a ${LOG_FILE}
+do-release-upgrade -f DistUpgradeViewNonInteractive >> -a ${LOG_FILE}
 
+apt-get -y --force-yes install --reinstall chef | tee -a ${LOG_FILE}
 rm /etc/apt/apt.conf.d/local # Remove non-interactive config for apt
 
 shutdown -r now

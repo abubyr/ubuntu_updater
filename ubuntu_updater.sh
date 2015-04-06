@@ -26,6 +26,7 @@ fi
 
 rm -rf /var/lib/apt/lists/*  # Otherwise apt-get update may complain 'Failed to fetch... Hash Sum mismatch'
 
+export DEBIAN_FRONTEND=noninteractive
 apt-get update | tee -a ${LOG_FILE}
 apt-get -y --force-yes upgrade | tee -a ${LOG_FILE}
 apt-get -y --force-yes install update-manager-core | tee -a ${LOG_FILE}

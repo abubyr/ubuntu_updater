@@ -36,6 +36,8 @@ https_proxy=${PROXY} wget ${CHEF_CLIENT_URL} -P /tmp |& tee -a ${LOG_FILE}
 dpkg -i /tmp/${CHEF_CLIENT_URL##*/} |& tee -a ${LOG_FILE}
 
 apt-get -y --force-yes upgrade |& tee -a ${LOG_FILE}
+apt-get -y --force-yes install debsums |& tee -a ${LOG_FILE}
+apt-get -y --force-yes install screen |& tee -a ${LOG_FILE}
 apt-get -y --force-yes install update-manager-core |& tee -a ${LOG_FILE}
 
 # Check if update-manager will try to upgrade to the next LTS release.
@@ -59,11 +61,17 @@ do-release-upgrade -f DistUpgradeViewNonInteractive &>> ${LOG_FILE}
 
 rm /etc/apt/apt.conf.d/local # Remove non-interactive config for apt
 
+echo "Checking debsums after upgrade" | tee -a ${LOG_FILE}
+if ! debsums -s |& tee -a ${LOG_FILE}; then
+  echo "WARNING: debsums check was unsuccessful!" | tee -a ${LOG_FILE}
+else
+  echo "OK: debsums finished successfully. All deb packages are consistent" | tee -a ${LOG_FILE}
+fi
+
 # Reset default boot entry before reboot
 
 if sed -i 's/^.*GRUB_DEFAULT=.*$/GRUB_DEFAULT=0/g' /etc/default/grub && update-grub; then
-  shutdown -r now
+  screen -S shutdown_session -m -d shutdown -r now
 else 
   echo "WARNING: Cannot change default GRUB menu entry! Node will not be rebooted! Fix /etc/default/grub settings and reboot manually!" | tee -a ${LOG_FILE}
 fi
-

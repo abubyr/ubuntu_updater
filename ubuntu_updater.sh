@@ -30,6 +30,11 @@ rm -rf /var/lib/apt/lists/*  # Otherwise apt-get update may complain 'Failed to 
 
 export DEBIAN_FRONTEND=noninteractive
 apt-get update | tee -a ${LOG_FILE}
+
+# Install latest version of chef-client
+https_proxy=${PROXY} wget ${CHEF_CLIENT_URL} -P /tmp |& tee -a ${LOG_FILE}
+dpkg -i /tmp/${CHEF_CLIENT_URL##*/} |& tee -a ${LOG_FILE}
+
 apt-get -y --force-yes upgrade |& tee -a ${LOG_FILE}
 apt-get -y --force-yes install update-manager-core |& tee -a ${LOG_FILE}
 
@@ -52,8 +57,6 @@ EOT
 apt-get install update-manager-core |& tee -a ${LOG_FILE}
 do-release-upgrade -f DistUpgradeViewNonInteractive &>> ${LOG_FILE}
 
-https_proxy=${PROXY} wget ${CHEF_CLIENT_URL} -P /tmp |& tee -a ${LOG_FILE}
-dpkg -i /tmp/${CHEF_CLIENT_URL##*/} |& tee -a ${LOG_FILE}
 
 rm /etc/apt/apt.conf.d/local # Remove non-interactive config for apt
 

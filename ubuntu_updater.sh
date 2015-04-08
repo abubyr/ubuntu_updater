@@ -57,4 +57,11 @@ dpkg -i /tmp/${CHEF_CLIENT_URL##*/} |& tee -a ${LOG_FILE}
 
 rm /etc/apt/apt.conf.d/local # Remove non-interactive config for apt
 
-shutdown -r now
+# Reset default boot entry before reboot
+
+if sed -i 's/^.*GRUB_DEFAULT=.*$/GRUB_DEFAULT=0/g' /etc/default/grub && update-grub; then
+  shutdown -r now
+else 
+  echo "WARNING: Cannot change default GRUB menu entry! Node will not be rebooted! Fix /etc/default/grub settings and reboot manually!" | tee -a ${LOG_FILE}
+fi
+

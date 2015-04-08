@@ -4,6 +4,8 @@ set -o pipefail
 LOG_FILE="/var/log/release-upgrade-$(date +'%F_%H-%M-%S').log"
 CURRENT_VERSION="12.04" # Should be LTS release
 BACKUP_DIR="/var/backups"
+CHEF_CLIENT_URL="https://opscode-omnibus-packages.s3.amazonaws.com/ubuntu/13.04/x86_64/chef_11.18.6-1_amd64.deb"
+PROXY="http://one.proxy.att.com:8888"
 
 mkdir ${BACKUP_DIR}
 # Create backup of /etc dir
@@ -28,8 +30,8 @@ rm -rf /var/lib/apt/lists/*  # Otherwise apt-get update may complain 'Failed to 
 
 export DEBIAN_FRONTEND=noninteractive
 apt-get update | tee -a ${LOG_FILE}
-apt-get -y --force-yes upgrade | tee -a ${LOG_FILE}
-apt-get -y --force-yes install update-manager-core | tee -a ${LOG_FILE}
+apt-get -y --force-yes upgrade |& tee -a ${LOG_FILE}
+apt-get -y --force-yes install update-manager-core |& tee -a ${LOG_FILE}
 
 # Check if update-manager will try to upgrade to the next LTS release.
 grep 'Prompt=lts' /etc/update-manager/release-upgrades
@@ -47,10 +49,12 @@ Dpkg::Options {
 }
 EOT
 
-apt-get install update-manager-core | tee -a ${LOG_FILE}
-do-release-upgrade -f DistUpgradeViewNonInteractive >> -a ${LOG_FILE}
+apt-get install update-manager-core |& tee -a ${LOG_FILE}
+do-release-upgrade -f DistUpgradeViewNonInteractive &>> ${LOG_FILE}
 
-apt-get -y --force-yes install --reinstall chef | tee -a ${LOG_FILE}
+https_proxy=${PROXY} wget ${CHEF_CLIENT_URL} -P /tmp |& tee -a ${LOG_FILE}
+dpkg -i /tmp/${CHEF_CLIENT_URL##*/} |& tee -a ${LOG_FILE}
+
 rm /etc/apt/apt.conf.d/local # Remove non-interactive config for apt
 
 shutdown -r now

@@ -54,7 +54,6 @@ Dpkg::Options {
 }
 EOT
 
-apt-get install update-manager-core |& tee -a ${LOG_FILE}
 do-release-upgrade -f DistUpgradeViewNonInteractive &>> ${LOG_FILE}
 
 

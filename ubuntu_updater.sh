@@ -57,7 +57,7 @@ Dpkg::Options {
 EOT
 
 echo "Starting do-release-upgrade. Please see ${LOG_FILE} on node to monitor this" | tee -a ${LOG_FILE}
-do-release-upgrade -f DistUpgradeViewNonInteractive &>> -a ${LOG_FILE}
+do-release-upgrade -f DistUpgradeViewNonInteractive &>> ${LOG_FILE}
 echo "Finishing do-release-upgrade" | tee -a ${LOG_FILE}
 
 rm /etc/apt/apt.conf.d/local # Remove non-interactive config for apt

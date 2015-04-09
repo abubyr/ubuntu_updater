@@ -71,7 +71,7 @@ fi
 # Reset default boot entry before reboot
 
 if sed -i 's/^.*GRUB_DEFAULT=.*$/GRUB_DEFAULT=0/g' /etc/default/grub && update-grub; then
-  screen -S shutdown_session -m -d shutdown -r now
+  screen -S shutdown_session -m -d bash -c "sleep 30; shutdown -r now"
 else 
   echo "WARNING: Cannot change default GRUB menu entry! Node will not be rebooted! Fix /etc/default/grub settings and reboot manually!" | tee -a ${LOG_FILE}
 fi

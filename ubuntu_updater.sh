@@ -56,7 +56,7 @@ Dpkg::Options {
 }
 EOT
 
-do-release-upgrade -f DistUpgradeViewNonInteractive &>> ${LOG_FILE}
+do-release-upgrade -f DistUpgradeViewNonInteractive |& tee -a ${LOG_FILE}
 
 
 rm /etc/apt/apt.conf.d/local # Remove non-interactive config for apt
